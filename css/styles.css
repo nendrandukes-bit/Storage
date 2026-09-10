@@ -118,7 +118,7 @@ html[data-theme=light] .seg[aria-pressed=true]{border:1px solid var(--line)}
 .nav-item[aria-current=true] .nav-count{background:color-mix(in srgb,var(--cat) 22%,transparent);color:var(--text)}
 
 /* ---------- quota ---------- */
-.quota{margin-top:auto;padding:13px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface-2)}
+.quota{margin-top:auto;padding:12px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface-2)}
 .quota-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:11.5px;font-weight:700;margin-bottom:8px}
 .quota-head span:last-child{color:var(--muted);font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap;font-size:11px}
 .quota-head span:first-child{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
