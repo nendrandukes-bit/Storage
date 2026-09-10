@@ -20,3 +20,5 @@ shot-tool.apk
 .npm/
 *.log
 .sudo_as_admin_successful
+live.js
+live2.js
