@@ -1,0 +1,42 @@
+const { chromium } = require('playwright-core');
+const BASE = 'https://nendrandukes-bit.github.io/Storage';
+let pass=0, fail=0; const ok=(n,c,e)=>{c?(pass++,console.log('  ✔ '+n+(e?'  '+e:''))):(fail++,console.log('  ✘ '+n+(e?'  → '+e:'')));};
+(async()=>{
+  const b=await chromium.launch({executablePath:'/home/user/.cache/ms-playwright/chromium-1243/chrome-linux64/chrome',args:['--no-sandbox']});
+  const ctx=await b.newContext({viewport:{width:1440,height:940},acceptDownloads:true});
+  const p=await ctx.newPage(); const errs=[], bad=[];
+  p.on('pageerror',e=>errs.push(e.message)); p.on('console',m=>{if(m.type()==='error')errs.push(m.text())});
+  p.on('requestfailed',r=>bad.push(r.url()));
+  p.on('response',r=>{if(r.status()>=400) bad.push(r.status()+' '+r.url())});
+  console.log('\nLIVE smoke test → '+BASE+'/');
+  const res=await p.goto(BASE+'/',{waitUntil:'load',timeout:45000});
+  ok('page served over HTTPS', res.status()===200, 'HTTP '+res.status());
+  ok('title is Nendu Cloud', /Nendu Cloud/.test(await p.title()), await p.title());
+  ok('credits Nendran Duke on page', (await p.textContent('.brand-text')).includes('Nendran Duke'));
+  await p.waitForFunction(()=>document.querySelectorAll('#nav .nav-item[data-cat]').length===9,null,{timeout:10000});
+  ok('all 8 categories + All files render', (await p.$$eval('#nav .nav-item[data-cat]',e=>e.map(x=>x.dataset.cat).join(',')))==='all,photos,videos,docs,apk,audio,archives,code,other');
+  ok('live search box present', await p.isVisible('#search'));
+  // upload → preview → download on the published site
+  p.on('download',d=>console.log('   (download observed: '+d.suggestedFilename()+')'));
+  await p.setInputFiles('#file-input','/home/user/fixture-photo.png');
+  await p.waitForFunction(()=>document.querySelectorAll('#grid .card').length===1,null,{timeout:15000});
+  ok('drag/upload pipeline works on Pages', (await p.textContent('#grid .card .c-name')).includes('fixture-photo'));
+  await p.fill('#search','photo'); await p.waitForTimeout(400);
+  ok('search works on the published site', (await p.$$('#grid .card')).length===1);
+  await p.click('#grid .card'); await p.waitForSelector('#modal img',{timeout:10000});
+  ok('image preview renders on the published site', !!(await p.$('#modal img')));
+  await p.waitForFunction(()=>/[a-f0-9]{64}/.test(document.querySelector('#pv-extras .hashbox').textContent),null,{timeout:15000});
+  ok('sha-256 computed on the published site', true);
+  await p.keyboard.press('Escape');
+  const [dl]=await Promise.all([p.waitForEvent('download',{timeout:15000}), p.click('#grid .card:has-text("fixture-photo.png") .c-actions button[aria-label="Download"]')]);
+  ok('download works on the published site', dl.suggestedFilename()==='fixture-photo.png', dl.suggestedFilename());
+  // persistence across reload on Pages
+  await p.reload({waitUntil:'load'});
+  await p.waitForFunction(()=>document.querySelectorAll('#grid .card').length===1,null,{timeout:15000});
+  ok('uploaded file survives reload on Pages', true);
+  ok('no failed/4xx-5xx requests', bad.length===0, bad.slice(0,3).join(' | '));
+  ok('no page/console errors', errs.length===0, errs.slice(0,3).join(' | '));
+  await p.screenshot({path:'/home/user/shots/LIVE.png'});
+  console.log('\n'+(fail?'✘':'✔')+` ${pass} passed, ${fail} failed`);
+  await b.close(); process.exit(fail?1:0);
+})().catch(e=>{console.log('ERR',e.stack);process.exit(2)});

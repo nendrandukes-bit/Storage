@@ -38,16 +38,6 @@ tools/validate.js       pre-flight check: missing files, dupes, bad categories, 
 .nojekyll               skips Jekyll so Paths / serve from main
 ```
 
-## Starter library
-
-The drive ships with 7 tiny demo files (≈320 KB total) — one per category — so search,
-preview and download are demonstrable immediately. Delete them and republish with:
-
-```bash
-rm -rf files/*/* && touch files/photos/.gitkeep files/videos/.gitkeep files/docs/.gitkeep        files/apk/.gitkeep files/audio/.gitkeep files/archives/.gitkeep files/code/.gitkeep        files/other/.gitkeep
-npm run build:manifest && npm run validate && git add -A && git commit -m "start with an empty drive" && git push
-```
-
 ## Add files permanently (published to the link)
 
 1. Drop your file in the matching folder, e.g. `files/photos/sunset-climb.jpg`.

@@ -8,4 +8,102 @@
    stay inside this browser's IndexedDB.
    ========================================================= */
 
-window.CLOUD_MANIFEST = [];
+window.CLOUD_MANIFEST = [
+  {
+    "id": "apk-nendu-drive-beta",
+    "name": "nendu-drive-beta.apk",
+    "category": "apk",
+    "path": "files/apk/nendu-drive-beta.apk",
+    "size": 137079,
+    "modified": "2026-09-10",
+    "description": "Sample Android package for the sideload folder. APKs get a header dump plus a locally computed SHA-256 so installs can be verified.",
+    "tags": [
+      "sample",
+      "apk",
+      "android"
+    ],
+    "starred": true
+  },
+  {
+    "id": "archives-nendu-drive-v1-2",
+    "name": "nendu-drive-v1.2.zip",
+    "category": "archives",
+    "path": "files/archives/nendu-drive-v1.2.zip",
+    "size": 430,
+    "modified": "2026-09-10",
+    "description": "Zip archive: the panel reads its central directory and lists the real entries before you download anything.",
+    "tags": [
+      "sample",
+      "zip",
+      "release"
+    ]
+  },
+  {
+    "id": "audio-field-tone",
+    "name": "field-tone.mp3",
+    "category": "audio",
+    "path": "files/audio/field-tone.mp3",
+    "size": 18407,
+    "modified": "2026-09-10",
+    "description": "Sample audio with inline playback and a waveform panel.",
+    "tags": [
+      "sample",
+      "audio"
+    ]
+  },
+  {
+    "id": "docs-app-readme",
+    "name": "app-readme.md",
+    "category": "docs",
+    "path": "files/docs/app-readme.md",
+    "size": 5894,
+    "modified": "2026-09-10",
+    "description": "This repository README served as a document, so you can see how plain text previews with line numbers.",
+    "tags": [
+      "readme",
+      "docs"
+    ]
+  },
+  {
+    "id": "docs-trip-log",
+    "name": "trip-log.md",
+    "category": "docs",
+    "path": "files/docs/trip-log.md",
+    "size": 354,
+    "modified": "2026-09-10",
+    "description": "Markdown renders in the browser \u2014 headings, tables, quotes and fenced code. Toggle to raw text any time.",
+    "tags": [
+      "sample",
+      "markdown",
+      "docs"
+    ]
+  },
+  {
+    "id": "photos-ridge-golden-hour",
+    "name": "ridge-golden-hour.png",
+    "category": "photos",
+    "path": "files/photos/ridge-golden-hour.png",
+    "size": 34398,
+    "modified": "2026-09-10",
+    "description": "Sample photo. Drop in your own shots \u2014 the viewer handles click-to-zoom, real dimensions and one-click download.",
+    "tags": [
+      "sample",
+      "photo"
+    ],
+    "starred": true
+  },
+  {
+    "id": "videos-drone-flyover",
+    "name": "drone-flyover.mp4",
+    "category": "videos",
+    "path": "files/videos/drone-flyover.mp4",
+    "size": 137075,
+    "modified": "2026-09-10",
+    "description": "Sample clip: streams straight from the repo with a real player, speed controls, and a thumbnail generated from an actual frame.",
+    "tags": [
+      "sample",
+      "video"
+    ],
+    "starred": true
+  }
+];
