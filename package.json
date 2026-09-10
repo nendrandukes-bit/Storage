@@ -1,0 +1,15 @@
+{
+  "name": "nendu-cloud",
+  "version": "1.0.0",
+  "description": "Nendu Cloud — a personal cloud storage workspace by Nendran Duke. Photos, videos, documents, APKs, audio, archives and code with instant search, in-browser preview and one-click download.",
+  "private": true,
+  "license": "MIT",
+  "author": "Nendran Duke",
+  "scripts": {
+    "serve": "python3 -m http.server 8080 --bind 0.0.0.0",
+    "build:manifest": "node tools/build-manifest.js",
+    "validate": "node tools/validate.js",
+    "check": "npm run validate && node --check js/app.js && node --check js/store.js && node --check js/manifest.js"
+  },
+  "engines": { "node": ">=16" }
+}

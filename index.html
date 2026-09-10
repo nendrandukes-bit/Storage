@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Nendu Cloud — private cloud storage by Nendran Duke</title>
+<meta name="description" content="Nendu Cloud is a personal cloud storage workspace by Nendran Duke: photos, videos, documents, APKs, audio, archives and code in one place, with instant search, in-browser preview and one-click download.">
+<meta name="theme-color" content="#0a0d13">
+<meta property="og:title" content="Nendu Cloud — cloud storage by Nendran Duke">
+<meta property="og:description" content="Search, preview and download every file in your drive. Organised by category.">
+<meta property="og:type" content="website">
+<meta name="author" content="Nendran Duke">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='15' fill='%230a0d13'/%3E%3Cpath d='M19 41a9 9 0 0 1 .9-17.9A13 13 0 0 1 45 25.6 8.5 8.5 0 0 1 44 41z' fill='none' stroke='%23ffd95e' stroke-width='3.4' stroke-linejoin='round'/%3E%3Cpath d='M25 34c3 5 9 6 15 3' fill='none' stroke='%23ffd95e' stroke-width='3.4' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+<div class="ambient" aria-hidden="true"><i></i><i></i></div>
+
+<div class="app">
+  <!-- ============ SIDEBAR ============ -->
+  <aside class="sidebar" id="sidebar" aria-label="Drive navigation">
+    <div class="brand">
+      <svg class="brand-mark" viewBox="0 0 64 64" aria-hidden="true">
+        <rect width="64" height="64" rx="15" class="mark-bg"/>
+        <path d="M19 41a9 9 0 0 1 .9-17.9A13 13 0 0 1 45 25.6 8.5 8.5 0 0 1 44 41z" fill="none" stroke-width="3.4" stroke-linejoin="round" class="mark-stroke"/>
+        <path d="M25 34c3 5 9 6 15 3" fill="none" stroke-width="3.4" stroke-linecap="round" class="mark-stroke"/>
+      </svg>
+      <div class="brand-text">
+        <strong>Nendu Cloud</strong>
+        <span>cloud storage by <b>Nendran Duke</b></span>
+      </div>
+    </div>
+
+    <button class="btn btn-primary" id="btn-upload" type="button">
+      <svg viewBox="0 0 24 24" class="ic" aria-hidden="true"><path d="M12 16V4m0 0L8 8m4-4 4 4"/><path d="M4 15v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></svg>
+      Upload files
+    </button>
+    <button class="btn btn-ghost" id="btn-add" type="button">
+      <svg viewBox="0 0 24 24" class="ic" aria-hidden="true"><path d="M8 3H6a2 2 0 0 0-2 2v2m0 6v2a2 2 0 0 0 2 2h2m6 0h2a2 2 0 0 0 2-2v-2m0-6V5a2 2 0 0 0-2-2h-2"/><path d="M12 9v6m-3-3h6"/></svg>
+      Add files to this drive
+    </button>
+
+    <nav class="nav" id="nav" aria-label="Categories"></nav>
+
+    <div class="quota">
+      <div class="quota-head"><span>Workspace storage</span><span id="quota-label">—</span></div>
+      <div class="bar"><i id="quota-fill"></i></div>
+      <p class="quota-note" id="quota-note"></p>
+    </div>
+
+    <div class="sidebar-foot">
+      <p>© <span id="year"></span> Nendran Duke · Nendu Cloud v1.0</p>
+      <p class="muted">Files live in this repo and in your browser. Nothing is uploaded to a third party.</p>
+    </div>
+  </aside>
+
+  <!-- ============ MAIN ============ -->
+  <main class="main">
+    <header class="topbar">
+      <button class="icon-btn only-mobile" id="btn-menu" type="button" aria-label="Open navigation">
+        <svg viewBox="0 0 24 24" class="ic" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+      </button>
+
+      <div class="search-wrap" role="search">
+        <svg viewBox="0 0 24 24" class="ic search-ic" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <input id="search" type="search" placeholder="Search every file by name, type, tag or folder…" autocomplete="off" spellcheck="false" aria-label="Search files" aria-describedby="search-status">
+        <span class="kbd">/</span>
+        <button class="icon-btn tiny" id="btn-clear-search" type="button" aria-label="Clear search" hidden>
+          <svg viewBox="0 0 24 24" class="ic" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
+        </button>
+        <div class="suggest" id="suggest" hidden></div>
+      </div>
+
+      <div class="tools">
+        <label class="field">
+          <span class="sr-only">Sort by</span>
+          <select id="sort" aria-label="Sort files">
+            <option value="name">Name A–Z</option>
+            <option value="name-desc">Name Z–A</option>
+            <option value="newest" selected>Newest first</option>
+            <option value="oldest">Oldest first</option>
+            <option value="largest">Largest</option>
+            <option value="smallest">Smallest</option>
+            <option value="type">Type</option>
+          </select>
+        </label>
+        <div class="segmented" role="group" aria-label="View mode">
+          <button class="seg" data-view="grid" type="button" aria-pressed="true" title="Grid view">
+            <svg viewBox="0 0 24 24" class="ic" aria-hidden="true"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></svg>
+          </button>
+          <button class="seg" data-view="list" type="button" aria-pressed="false" title="List view">
+            <svg viewBox="0 0 24 24" class="ic" aria-hidden="true"><path d="M9 6h11M9 12h11M9 18h11M4.5 6h.01M4.5 12h.01M4.5 18h.01"/></svg>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <section class="hero" id="hero">
+      <div>
+        <h1 id="cat-title">All files</h1>
+        <p id="cat-sub" class="muted">Everything in the drive, searchable in one place.</p>
+      </div>
+      <div class="hero-actions">
+        <button class="btn btn-quiet" id="btn-export" type="button" title="Download manifest.js for your repo">
+          <svg viewBox="0 0 24 24" class="ic" aria-hidden="true"><path d="M12 4v12m0 0 4-4m-4 4-4-4"/><path d="M4 18v1a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-1"/></svg>
+          Export manifest
+        </button>
+      </div>
+    </section>
+
+    <div class="chips-row">
+      <span class="result-count" id="search-status" role="status" aria-live="polite"></span>
+      <div class="chips" id="type-chips" role="group" aria-label="Filter by file type"></div>
+    </div>
+
+    <div class="grid" id="grid" aria-label="Files"></div>
+  </main>
+</div>
+
+<!-- ============ DROP OVERLAY ============ -->
+<div class="dropzone" id="dropzone" hidden>
+  <div class="dropzone-inner">
+    <svg viewBox="0 0 24 24" class="big" aria-hidden="true"><path d="M12 16V4m0 0L8 8m4-4 4 4"/><path d="M4 15v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></svg>
+    <strong>Drop to add to your drive</strong>
+    <span>Photos, videos, documents, APKs, audio, archives, code — up to 128 MB each</span>
+  </div>
+</div>
+
+<!-- ============ UPLOAD QUEUE ============ -->
+<section class="queue" id="queue" hidden aria-label="Upload queue">
+  <header>
+    <strong>Uploading</strong>
+    <span id="queue-progress" class="muted"></span>
+    <button class="icon-btn tiny" id="queue-close" type="button" aria-label="Close upload panel">
+      <svg viewBox="0 0 24 24" class="ic" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
+    </button>
+  </header>
+  <ul id="queue-list"></ul>
+</section>
+
+<!-- ============ PREVIEW MODAL ============ -->
+<div class="modal" id="modal" hidden role="dialog" aria-modal="true" aria-labelledby="pv-name">
+  <div class="modal-backdrop" data-close></div>
+  <div class="sheet">
+    <div class="viewer" id="pv-viewer"></div>
+    <aside class="details">
+      <header class="details-head">
+        <span class="type-badge" id="pv-badge"></span>
+        <button class="icon-btn" data-close type="button" aria-label="Close preview">
+          <svg viewBox="0 0 24 24" class="ic" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
+        </button>
+      </header>
+      <h2 id="pv-name" class="pv-name" title=""></h2>
+      <div class="actions">
+        <a class="btn btn-primary" id="pv-download" href="#" download>
+          <svg viewBox="0 0 24 24" class="ic" aria-hidden="true"><path d="M12 4v12m0 0 4-4m-4 4-4-4"/><path d="M4 18v1a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-1"/></svg>
+          Download
+        </a>
+        <button class="btn btn-quiet" id="pv-copy-link" type="button">Copy link</button>
+        <button class="btn btn-quiet only-local" id="pv-open-tab" type="button">Open in tab</button>
+        <button class="btn btn-danger" id="pv-delete" type="button">Remove</button>
+      </div>
+      <div class="meta-extras" id="pv-extras"></div>
+      <div class="tag-row" id="pv-tags"></div>
+      <dl class="meta" id="pv-meta"></dl>
+      <p class="hint" id="pv-hint"></p>
+    </aside>
+  </div>
+</div>
+
+<!-- ============ ADD-FILES GUIDE ============ -->
+<div class="modal" id="guide" hidden role="dialog" aria-modal="true" aria-labelledby="guide-title">
+  <div class="modal-backdrop" data-close-guide></div>
+  <div class="sheet narrow">
+    <div class="guide-body">
+      <header class="details-head">
+        <h2 id="guide-title">Two ways to fill this drive</h2>
+        <button class="icon-btn" data-close-guide type="button" aria-label="Close">
+          <svg viewBox="0 0 24 24" class="ic" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
+        </button>
+      </header>
+      <ol class="steps">
+        <li><b>Drop files here (fastest).</b> Drag anything onto this page — or press “Upload files”. Files are stored in this browser’s IndexedDB, they stay available on your next visit, and they are searchable, previewable and downloadable exactly like repo files.</li>
+        <li><b>Commit to the repo (permanent, shared).</b> Add your file under <code>files/&lt;category&gt;/</code> in the <code>Storage</code> repo, then list it in <code>js/manifest.js</code> (or run <code>npm run build:manifest</code> to generate it automatically). GitHub Pages publishes it and everyone with the link gets the same library.</li>
+      </ol>
+      <p class="muted">Tip: press <span class="kbd">/</span> to search, <span class="kbd">Esc</span> to close a preview, <span class="kbd">g</span> then a number to jump between categories.</p>
+    </div>
+  </div>
+</div>
+
+<input type="file" id="file-input" multiple hidden>
+
+<div class="toasts" id="toasts" role="region" aria-label="Notifications"></div>
+<noscript><p style="padding:24px;font-family:system-ui">Nendu Cloud needs JavaScript to run your drive.</p></noscript>
+
+<script src="js/manifest.js"></script>
+<script src="js/store.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
