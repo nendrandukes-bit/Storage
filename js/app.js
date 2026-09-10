@@ -258,7 +258,7 @@
       description: entry.description || '',
       tags: entry.tags || [],
       starred: !!entry.starred,
-      thumb: entry.thumb || '',
+      thumb: entry.thumb || (entry.thumbPath ? entry.thumbPath : ''),
       source: source,
       blobType: entry.blobType || ''
     };
@@ -320,7 +320,7 @@
    * ------------------------------------------------------------------ */
   function score(f, q) {
     var hay = f.search;
-    var s = 0;
+    var s = 0, matched = 0;
     var terms = q.toLowerCase().split(/\s+/).filter(Boolean);
     if (!terms.length) return 0;
     for (var i = 0; i < terms.length; i++) {
@@ -339,9 +339,12 @@
         var near = f.tokens.some(function (tk) { return tk.length > 3 && lev(tk, t) <= 2; });
         if (near) hit = 6;
       }
-      if (!hit) return 0;
-      s += hit;
+      if (!hit) continue;                       // best-effort: rank by how many
+      s += hit;                                 // terms match, never go blank for one
+      matched++;                                // stray word…
     }
+    if (!matched) return 0;
+    if (matched === terms.length) s += 25;      // …but full matches win
     if (f.starred) s += 3;
     return s;
   }
@@ -612,6 +615,66 @@
     var frag = document.createDocumentFragment();
     list.forEach(function (f, i) { frag.appendChild(cardEl(f, i)); });
     grid.appendChild(frag);
+    lazyVideoThumbs(list);
+  }
+
+  /**
+   * Published videos have no committed thumbnail? Pull one from the file itself
+   * once the card is on screen, and keep it in memory for the session.
+   */
+  function lazyVideoThumbs(list) {
+    var todo = list.filter(function (f) { return !f.thumb && f.category === 'videos'; });
+    if (!todo.length || !('IntersectionObserver' in window)) return;
+    var seen = {};
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) {
+        if (!en.isIntersecting) return;
+        var id = en.target.getAttribute('data-id');
+        io.unobserve(en.target);
+        var f = state.byId[id];
+        if (!f || f.thumb || seen[id]) return;
+        seen[id] = 1;
+        frameThumb(f).then(function (dataUrl) {
+          if (!dataUrl) return;
+          f.thumb = dataUrl;
+          var thumb = en.target.querySelector('.thumb');
+          if (!thumb || thumb.querySelector('img') || thumb.querySelector('.glyph') === null) return;
+          var img = el('img', { src: dataUrl, alt: '', loading: 'lazy' });
+          var glyph = thumb.querySelector('.glyph');
+          var label = thumb.querySelector('.tile-label');
+          if (glyph) glyph.remove();
+          if (label) label.remove();
+          thumb.insertBefore(img, thumb.firstChild);
+        });
+      });
+    }, { rootMargin: '120px' });
+    todo.forEach(function (f) { var n = grid.querySelector('[data-id="' + CSS.escape(f.id) + '"]'); if (n) io.observe(n); });
+  }
+
+  function frameThumb(f) {
+    return getBlob(f).then(function (x) {
+      var url = x.url;
+      return new Promise(function (resolve) {
+        var v = el('video', { muted: true, preload: 'metadata', src: url });
+        var done = false;
+        var finish = function (out) { if (done) return; done = true; try { v.removeAttribute('src'); v.load(); } catch (e) {} resolve(out); };
+        setTimeout(function () { finish(''); }, 8000);
+        v.addEventListener('loadeddata', function () {
+          try { v.currentTime = Math.min(0.6, (v.duration || 1) / 3); } catch (e) { finish(''); }
+        });
+        v.addEventListener('seeked', function () {
+          try {
+            var w = v.videoWidth || 640, h = v.videoHeight || 360;
+            var scale = Math.min(1, 480 / Math.max(w, h));
+            var c = el('canvas'); c.width = Math.round(w * scale); c.height = Math.round(h * scale);
+            c.getContext('2d').drawImage(v, 0, 0, c.width, c.height);
+            var out = c.toDataURL('image/jpeg', 0.72);
+            finish(out.length < 190000 ? out : '');
+          } catch (e) { finish(''); }
+        });
+        v.onerror = function () { finish(''); };
+      });
+    }).catch(function () { return ''; });
   }
 
   /* ------------------------------------------------------------------ *

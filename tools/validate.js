@@ -50,6 +50,7 @@ rows.forEach((r, i) => {
     }
   }
   if (r.category && !CATS.includes(r.category)) problems.push(`${at}: unknown category "${r.category}"`);
+  if (r.thumbPath && !fs.existsSync(path.join(ROOT, r.thumbPath))) problems.push(`${at}: thumbPath "${r.thumbPath}" is missing`);
   if (r.category && r.path && !r.path.startsWith('files/' + r.category + '/')) {
     problems.push(`${at}: path should live under files/${r.category}/`);
   }

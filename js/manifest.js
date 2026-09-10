@@ -71,7 +71,7 @@ window.CLOUD_MANIFEST = [
     "path": "files/docs/trip-log.md",
     "size": 354,
     "modified": "2026-09-10",
-    "description": "Markdown renders in the browser \u2014 headings, tables, quotes and fenced code. Toggle to raw text any time.",
+    "description": "Markdown renders in the browser — headings, tables, quotes and fenced code. Toggle to raw text any time.",
     "tags": [
       "sample",
       "markdown",
@@ -85,12 +85,13 @@ window.CLOUD_MANIFEST = [
     "path": "files/photos/ridge-golden-hour.png",
     "size": 34398,
     "modified": "2026-09-10",
-    "description": "Sample photo. Drop in your own shots \u2014 the viewer handles click-to-zoom, real dimensions and one-click download.",
+    "description": "Sample photo. Drop in your own shots — the viewer handles click-to-zoom, real dimensions and one-click download.",
     "tags": [
       "sample",
       "photo"
     ],
-    "starred": true
+    "starred": true,
+    "thumbPath": "thumbs/photos/ridge-golden-hour.jpg"
   },
   {
     "id": "videos-drone-flyover",
@@ -104,6 +105,7 @@ window.CLOUD_MANIFEST = [
       "sample",
       "video"
     ],
-    "starred": true
+    "starred": true,
+    "thumbPath": "thumbs/videos/drone-flyover.jpg"
   }
 ];

@@ -34,6 +34,7 @@ js/store.js             IndexedDB wrapper (the browser-side “cloud node”)
 js/manifest.js          the published library — one entry per repo file
 files/<category>/       your files live here (photos, videos, docs, apk, audio, archives, code)
 tools/build-manifest.js regenerates js/manifest.js from the files/ folders
+thumbs/<category>/         build-time image/video thumbnails (generated when ffmpeg exists)
 tools/validate.js       pre-flight check: missing files, dupes, bad categories, orphans
 .nojekyll               skips Jekyll so Paths / serve from main
 ```
@@ -59,6 +60,10 @@ npm run build:manifest && npm run validate && git add -A && git commit -m "start
    ```
 
 3. Commit and push. Pages republishes in about a minute.
+
+If `ffmpeg` is on your machine, `build:manifest` also renders a 480 px frame thumbnail for
+every photo and video into `thumbs/` and links it with `thumbPath`, so the grid shows real
+pictures instead of icons. Without ffmpeg the app grabs a frame in the browser on first view.
 
 Or hand-write the entry in `js/manifest.js`:
 

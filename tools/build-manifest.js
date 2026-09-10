@@ -11,6 +11,10 @@ const ROOT = path.resolve(__dirname, '..');
 const FILES = path.join(ROOT, 'files');
 const OUT = path.join(ROOT, 'js', 'manifest.js');
 
+const { execSync } = require('child_process');
+const FFMPEG = process.env.FFMPEG || (which('ffmpeg') ? 'ffmpeg' : '');
+function which(bin) { try { execSync('command -v ' + bin, { stdio: ['ignore', 'pipe', 'ignore'] }); return true; } catch (e) { return false; } }
+
 const KNOWN = ['photos', 'videos', 'docs', 'apk', 'audio', 'archives', 'code', 'other'];
 const EXT2CAT = {};
 const MAP = {
@@ -77,7 +81,7 @@ for (const f of found) {
   const category = KNOWN.includes(folder) ? folder : (EXT2CAT[ext] || 'other');
   const relPath = 'files/' + f.rel;
   const prev = existing.get(relPath) || {};
-  rows.push({
+  const entry = {
     id: prev.id || slug(category + '-' + path.basename(f.rel, '.' + ext)),
     name: path.basename(f.rel),
     category,
@@ -87,7 +91,21 @@ for (const f of found) {
     ...(prev.description ? { description: prev.description } : {}),
     ...(prev.tags && prev.tags.length ? { tags: prev.tags } : {}),
     ...(prev.starred ? { starred: true } : {})
-  });
+  };
+  // pre-render a video frame / shrink big images when ffmpeg is around
+  const thumbRel = 'thumbs/' + category + '/' + path.basename(f.rel).replace(/\.[^.]+$/, '.jpg');
+  if (['videos', 'photos'].includes(category)) {
+    const outAbs = path.join(ROOT, thumbRel);
+    if (!fs.existsSync(outAbs) && FFMPEG) {
+      fs.mkdirSync(path.dirname(outAbs), { recursive: true });
+      const args = category === 'videos'
+        ? `-ss 0.5 -i "${f.full}" -frames:v 1 -vf "scale=480:-2" -q:v 5 -y "${outAbs}"`
+        : `-i "${f.full}" -vf "scale=480:-2" -q:v 5 -frames:v 1 -y "${outAbs}"`;
+      try { execSync(`ffmpeg -loglevel error ${args}`, { stdio: ['ignore', 'ignore', 'ignore'] }); } catch (e) { /* runtime fallback covers it */ }
+    }
+    if (fs.existsSync(outAbs)) entry.thumbPath = thumbRel;
+  }
+  rows.push(entry);
 }
 
 rows.sort((a, b) => a.category.localeCompare(b.category) || a.name.localeCompare(b.name));
@@ -108,6 +126,7 @@ fs.writeFileSync(OUT, `${header}\n\nwindow.CLOUD_MANIFEST = ${body};\n`);
 const tally = {};
 rows.forEach((r) => (tally[r.category] = (tally[r.category] || 0) + 1));
 const total = rows.reduce((a, r) => a + r.size, 0);
-console.log(`✔ js/manifest.js rebuilt — ${rows.length} file(s), ${(total / 1048576).toFixed(2)} MB`);
+const withThumbs = rows.filter(r => r.thumbPath).length;
+console.log(`✔ js/manifest.js rebuilt — ${rows.length} file(s), ${(total / 1048576).toFixed(2)} MB` + (FFMPEG ? `, ${withThumbs} thumbnail(s) via ffmpeg` : ' (install ffmpeg for build-time thumbnails)'));
 Object.keys(tally).sort().forEach((c) => console.log(`   ${c.padEnd(9)} ${tally[c]}`));
 if (!rows.length) console.log('   (files/ is empty — the drive starts clean, drag & drop to add locally)');
